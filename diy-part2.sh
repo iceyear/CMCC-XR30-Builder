@@ -110,9 +110,9 @@ config_package_add luci-app-arpbind
 ## Wake on Lan
 config_package_add luci-app-wol
 ## QR Code Generator
-config_package_add qrencode
+# config_package_add qrencode
 ## Zsh
-config_package_add zsh
+# config_package_add zsh
 ## Temporarily disable USB3.0
 config_package_add luci-app-usb3disable
 ## USB
@@ -129,7 +129,7 @@ config_package_add sendat
 ## bbr
 config_package_add kmod-tcp-bbr
 ## coremark cpu 跑分
-config_package_add coremark
+# config_package_add coremark
 ## autocore + lm-sensors-detect： cpu 频率、温度
 config_package_add autocore
 config_package_add lm-sensors-detect
@@ -144,9 +144,9 @@ config_package_add luci-app-mwan3
 ## mosdns
 config_package_add luci-app-mosdns
 ## curl
-config_package_add curl
+# config_package_add curl
 ## netcat
-config_package_add netcat
+# config_package_add netcat
 ## disk
 # config_package_add gdisk
 # config_package_add sgdisk
@@ -177,8 +177,8 @@ config_package_del luci-app-passwall_INCLUDE_tuic_client
 
 
 ## 定时任务。重启、关机、重启网络、释放内存、系统清理、网络共享、关闭网络、自动检测断网重连、MWAN3负载均衡检测重连、自定义脚本等10多个功能
-config_package_add luci-app-autotimeset
-config_package_add luci-lib-ipkg
+# config_package_add luci-app-autotimeset
+# config_package_add luci-lib-ipkg
 
 ## byobu, tmux
 # config_package_add byobu
