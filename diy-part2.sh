@@ -116,7 +116,7 @@ config_package_add zsh
 ## Temporarily disable USB3.0
 config_package_add luci-app-usb3disable
 ## USB
-config_package_add kmod-usb-net-huawei-cdc-ncm
+# config_package_add kmod-usb-net-huawei-cdc-ncm
 config_package_add kmod-usb-net-ipheth
 config_package_add kmod-usb-net-aqc111
 config_package_add kmod-usb-net-rtl8152-vendor
@@ -148,8 +148,8 @@ config_package_add curl
 ## netcat
 config_package_add netcat
 ## disk
-config_package_add gdisk
-config_package_add sgdisk
+# config_package_add gdisk
+# config_package_add sgdisk
 
 
 # Third-party packages
@@ -181,8 +181,8 @@ config_package_add luci-app-autotimeset
 config_package_add luci-lib-ipkg
 
 ## byobu, tmux
-config_package_add byobu
-config_package_add tmux
+# config_package_add byobu
+#config_package_add tmux
 
 # ## Frp Latest version patch
 
