@@ -129,7 +129,7 @@ jobs:
             echo "FIRMWARE=$PWD" >> $BASH_ENV
 
       - store_artifacts:
-          path: $FIRMWARE
+          path: /workdir/openwrt/bin/targets
           destination: firmware
 
 workflows:
