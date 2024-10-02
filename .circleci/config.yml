@@ -39,6 +39,13 @@ jobs:
           command: df -hT
 
       - run:
+          name: Set up Docker Systemd Replacement
+          command: |
+            sudo wget https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl3.py -O /bin/systemctl
+            sudo wget https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/journalctl3.py -O /bin/journalctl3
+            sudo chmod +x /bin/systemctl /bin/journalctl3
+
+      - run:
           name: Initialization environment
           command: |
             sudo apt-get update -qq
