@@ -1,0 +1,143 @@
+version: 2.1
+
+executors:
+  default:
+    docker:
+      - image: cimg/base:edge
+    resource_class: large
+    working_directory: ~/project
+
+environment:
+  TZ: Asia/Shanghai
+  REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
+  REPO_BRANCH: openwrt-21.02
+  OPENWRT_NAME: hanwckf
+  UPLOAD_TAG_NAME: cmcc_xr30
+  FEEDS_CONF: feeds.conf.default
+  DIY_P1_SH: diy-part1.sh
+  DIY_P2_SH: diy-part2.sh
+
+jobs:
+  build:
+    executor: default
+    steps:
+      - checkout
+
+      - run:
+          name: Check space usage
+          command: df -hT
+
+      - run:
+          name: Free disk space (Ubuntu)
+          command: |
+            sudo apt-get clean
+            sudo rm -rf /var/lib/apt/lists/*
+            sudo apt-get autoremove -y
+
+      - run:
+          name: Check space usage
+          command: df -hT
+
+      - run:
+          name: Initialization environment
+          command: |
+            sudo apt-get update -qq
+            sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+            sudo apt-get autoremove --purge -qq
+            sudo apt-get clean -qq
+            sudo timedatectl set-timezone "$TZ"
+            sudo mkdir -p /workdir
+            sudo chown $USER:$USER /workdir
+
+      - run:
+          name: Clone source code
+          command: |
+            cd /workdir
+            git clone -b $REPO_BRANCH --single-branch --depth 1 $REPO_URL openwrt
+            ln -sf /workdir/openwrt ~/project/openwrt
+
+      - run:
+          name: Load custom feeds & execute diy-part1.sh
+          command: |
+            [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+            chmod +x $DIY_P1_SH
+            cd openwrt
+            ~/project/$DIY_P1_SH
+
+      - run:
+          name: Update & install feeds
+          command: |
+            cd openwrt
+            ./scripts/feeds update -a
+            ./scripts/feeds install -a
+
+      - run:
+          name: Move config & execute diy-part2.sh
+          command: |
+            cp -f openwrt/defconfig/mt7981-ax3000.config openwrt/.config
+            chmod +x $DIY_P2_SH
+            cd openwrt
+            ~/project/$DIY_P2_SH
+
+      # - run:
+      #     name: Use luci-app-mtk config
+      #     when: << pipeline.parameters.APP_MTK >>
+      #     command: |
+      #       cd openwrt
+      #       sed -i 's/CONFIG_PACKAGE_luci-app-mtwifi-cfg=y/CONFIG_PACKAGE_luci-app-mtk=y/g' .config
+      #       sed -i 's/CONFIG_PACKAGE_luci-i18n-mtwifi-cfg-zh-cn=y/CONFIG_PACKAGE_luci-i18n-mtk-zh-cn=y/g' .config
+      #       sed -i 's/CONFIG_PACKAGE_mtwifi-cfg=y/CONFIG_PACKAGE_wifi-profile=y/g' .config
+      #       sed -i 's/CONFIG_PACKAGE_lua-cjson=y/CONFIG_WIFI_NORMAL_SETTING=y/g' .config
+
+      - run:
+          name: Download package
+          command: |
+            cd openwrt
+            make defconfig
+            make download -j8
+            find dl -size -1024c -exec ls -l {} \;
+            find dl -size -1024c -exec rm -f {} \;
+
+      - run:
+          name: Compile the firmware
+          command: |
+            cd openwrt
+            echo -e "$(($(nproc) + 1)) thread compile"
+            make -j$(($(nproc) + 1)) V=s || make -j1 || make -j1 V=s
+            if grep -q 'CONFIG_PACKAGE_mtwifi-cfg=y' .config; then
+              echo "WIFI_INTERFACE=-mtwifi" >> $BASH_ENV
+            else
+              echo "WIFI_INTERFACE=" >> $BASH_ENV
+            fi
+            echo "COMPILE_DATE=$(date +"%Y%m%d%H%M")" >> $BASH_ENV
+
+      - run:
+          name: Check space usage
+          command: df -hT
+
+      - run:
+          name: Organize compiled firmware
+          command: |
+            mapfile -t devices < <(grep '^CONFIG_TARGET_DEVICE.*=y' openwrt/.config | sed -r 's/.*DEVICE_(.*)=y/\1/')
+            cd openwrt/bin/targets/*/*
+            rm -rf packages
+            sudo apt-get install -qq rename
+            for val in "${devices[@]}"; do
+              rename "s/.*${val}/${COMPILE_DATE}-${OPENWRT_NAME}-${val}${WIFI_INTERFACE}/" *
+              echo "$val"
+            done
+            echo "FIRMWARE=$PWD" >> $BASH_ENV
+
+      - store_artifacts:
+          path: $FIRMWARE
+          destination: firmware
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+          # parameters:
+          #   APP_MTK:
+          #     type: boolean
+          #     default: false

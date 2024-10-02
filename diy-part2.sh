@@ -118,7 +118,7 @@ config_package_add fish
 ## Temporarily disable USB3.0
 config_package_add luci-app-usb3disable
 ## USB
-config_package_add kmod-usb-net-huawei-cdc-ncm
+# config_package_add kmod-usb-net-huawei-cdc-ncm
 config_package_add kmod-usb-net-ipheth
 config_package_add kmod-usb-net-aqc111
 config_package_add kmod-usb-net-rtl8152-vendor
@@ -131,7 +131,7 @@ config_package_add sendat
 ## bbr
 config_package_add kmod-tcp-bbr
 ## coremark cpu 跑分
-config_package_add coremark
+# config_package_add coremark
 ## autocore + lm-sensors-detect： cpu 频率、温度
 config_package_add autocore
 config_package_add lm-sensors-detect
@@ -141,6 +141,8 @@ config_package_add luci-app-autoreboot
 config_package_add kmod-macvlan
 config_package_add mwan3
 config_package_add luci-app-mwan3
+# ## frpc
+# config_package_add luci-app-frpc
 # ## frpc
 # config_package_add luci-app-frpc
 ## mosdns
@@ -196,26 +198,38 @@ rm -r package/custom/shadowsocks-rust
 rm -r package/custom/simple-obfs
 
 ## 定时任务。重启、关机、重启网络、释放内存、系统清理、网络共享、关闭网络、自动检测断网重连、MWAN3负载均衡检测重连、自定义脚本等10多个功能
-config_package_add luci-app-autotimeset
-config_package_add luci-lib-ipkg
+# config_package_add luci-app-autotimeset
+# config_package_add luci-lib-ipkg
 
 ## byobu, tmux
-config_package_add byobu
-config_package_add tmux
+# config_package_add byobu
+#config_package_add tmux
 
+# ## Frp Latest version patch
 # ## Frp Latest version patch
 
 # FRP_MAKEFILE_PATH="feeds/packages/net/frp/Makefile"
+# FRP_MAKEFILE_PATH="feeds/packages/net/frp/Makefile"
 
+# FRP_LATEST_RELEASE=$(curl -s https://api.github.com/repos/fatedier/frp/releases/latest | grep -Po '"tag_name": "\K.*?(?=")')
 # FRP_LATEST_RELEASE=$(curl -s https://api.github.com/repos/fatedier/frp/releases/latest | grep -Po '"tag_name": "\K.*?(?=")')
 
 # if [ -z "$FRP_LATEST_RELEASE" ]; then
   # echo "无法获取最新的 Release 名称"
   # exit 1
 # fi
+# if [ -z "$FRP_LATEST_RELEASE" ]; then
+  # echo "无法获取最新的 Release 名称"
+  # exit 1
+# fi
 
 # FRP_LATEST_VERSION=${FRP_LATEST_RELEASE#v}
+# FRP_LATEST_VERSION=${FRP_LATEST_RELEASE#v}
 
+# FRP_PKG_NAME="frp"
+# FRP_PKG_SOURCE="${FRP_PKG_NAME}-${FRP_LATEST_VERSION}.tar.gz"
+# FRP_PKG_SOURCE_URL="https://codeload.github.com/fatedier/frp/tar.gz/v${FRP_LATEST_VERSION}?"
+# curl -L -o "$FRP_PKG_SOURCE" "$FRP_PKG_SOURCE_URL"
 # FRP_PKG_NAME="frp"
 # FRP_PKG_SOURCE="${FRP_PKG_NAME}-${FRP_LATEST_VERSION}.tar.gz"
 # FRP_PKG_SOURCE_URL="https://codeload.github.com/fatedier/frp/tar.gz/v${FRP_LATEST_VERSION}?"
@@ -223,7 +237,11 @@ config_package_add tmux
 
 # FRP_PKG_HASH=$(sha256sum "$FRP_PKG_SOURCE" | awk '{print $1}')
 # rm -r "$FRP_PKG_SOURCE"
+# FRP_PKG_HASH=$(sha256sum "$FRP_PKG_SOURCE" | awk '{print $1}')
+# rm -r "$FRP_PKG_SOURCE"
 
+# sed -i "s/^PKG_VERSION:=.*/PKG_VERSION:=${FRP_LATEST_VERSION}/" "$FRP_MAKEFILE_PATH"
+# sed -i "s/^PKG_HASH:=.*/PKG_HASH:=${FRP_PKG_HASH}/" "$FRP_MAKEFILE_PATH"
 # sed -i "s/^PKG_VERSION:=.*/PKG_VERSION:=${FRP_LATEST_VERSION}/" "$FRP_MAKEFILE_PATH"
 # sed -i "s/^PKG_HASH:=.*/PKG_HASH:=${FRP_PKG_HASH}/" "$FRP_MAKEFILE_PATH"
 
