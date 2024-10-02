@@ -100,7 +100,7 @@ jobs:
               id: config
               if: steps.feeds-update.outcome == 'success' && !cancelled()
               run: |
-                    cp -f openwrt/defconfig/mt7981-ax3000.config openwrt/config
+                    cp -f openwrt/defconfig/mt7981-ax3000.config openwrt/.config
                     chmod +x $DIY_P2_SH
                     cd openwrt
                     $GITHUB_WORKSPACE/$DIY_P2_SH
@@ -158,8 +158,8 @@ jobs:
                 echo "status=success" >> $GITHUB_OUTPUT
 
             - name: Upload firmware to Artifacts
-              if: steps.organize.outcome == 'success' && !cancelled()
+              # if: steps.organize.outcome == 'success' && !cancelled()
               uses: actions/upload-artifact@main
               with:
                 name: ${{ env.COMPILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.UPLOAD_TAG_NAME }}${{ env.WIFI_INTERFACE }}
-                path: ${{ env.FIRMWARE }}
+                path: /workdir/openwrt/bin/targets
